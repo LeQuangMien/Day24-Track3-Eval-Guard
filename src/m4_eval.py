@@ -46,16 +46,26 @@ def evaluate_ragas(questions: list[str], answers: list[str],
         result = evaluate(dataset, metrics=[faithfulness, answer_relevancy,
                                             context_precision, context_recall])
         df = result.to_pandas()
+
+        # ragas >= 0.2 renames columns in the output dataframe:
+        # question -> user_input, answer -> response,
+        # contexts -> retrieved_contexts, ground_truth -> reference
+        col = lambda *names: next((n for n in names if n in df.columns), names[0])
+        q_col   = col("question", "user_input")
+        ans_col = col("answer", "response")
+        ctx_col = col("contexts", "retrieved_contexts")
+        gt_col  = col("ground_truth", "reference")
+
         per_question = [
             EvalResult(
-                question=row["question"],
-                answer=row["answer"],
-                contexts=row["contexts"],
-                ground_truth=row["ground_truth"],
-                faithfulness=float(row.get("faithfulness", 0.0)),
-                answer_relevancy=float(row.get("answer_relevancy", 0.0)),
-                context_precision=float(row.get("context_precision", 0.0)),
-                context_recall=float(row.get("context_recall", 0.0)),
+                question=row[q_col],
+                answer=row[ans_col],
+                contexts=list(row[ctx_col]) if row[ctx_col] is not None else [],
+                ground_truth=row[gt_col],
+                faithfulness=float(row.get("faithfulness", 0.0) or 0.0),
+                answer_relevancy=float(row.get("answer_relevancy", 0.0) or 0.0),
+                context_precision=float(row.get("context_precision", 0.0) or 0.0),
+                context_recall=float(row.get("context_recall", 0.0) or 0.0),
             )
             for _, row in df.iterrows()
         ]
