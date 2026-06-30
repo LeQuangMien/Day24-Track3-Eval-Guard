@@ -1,6 +1,6 @@
 # Failure Cluster Analysis — Phase A
 
-**Sinh viên:** Lê Quang Miên (2A202600715)
+**Sinh viên:** Lê Quang Miền (2A202600715)
 **Ngày:** 30/06/2026
 
 ---

@@ -1,6 +1,6 @@
 # LLM Judge Bias Report — Phase B
 
-**Sinh viên:** Lê Quang Miên (2A202600715)
+**Sinh viên:** Lê Quang Miền (2A202600715)
 **Ngày:** 30/06/2026
 **Judge model:** gpt-4o-mini
 
