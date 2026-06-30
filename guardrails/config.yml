@@ -2,6 +2,9 @@ models:
   - type: main
     engine: openai
     model: gpt-4o-mini
+  - type: embeddings
+    engine: SentenceTransformers
+    model: paraphrase-multilingual-MiniLM-L12-v2
 
 instructions:
   - type: general
