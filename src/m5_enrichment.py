@@ -120,13 +120,17 @@ def extract_metadata(text: str) -> dict:
             client = OpenAI()
             resp = client.chat.completions.create(
                 model="gpt-4o-mini",
+                response_format={"type": "json_object"},
                 messages=[
                     {"role": "system", "content": 'Trích xuất metadata từ đoạn văn. Trả về JSON: {"topic": "...", "entities": ["..."], "category": "policy|hr|it|finance", "language": "vi|en"}'},
                     {"role": "user", "content": text},
                 ],
                 max_tokens=150,
             )
-            return _json.loads(resp.choices[0].message.content)
+            content = resp.choices[0].message.content
+            if not content or not content.strip():
+                raise ValueError(f"Empty response from API (finish_reason={resp.choices[0].finish_reason})")
+            return _json.loads(content)
         except Exception as e:
             print(f"  ⚠️  OpenAI metadata failed: {e}")
 
@@ -148,14 +152,15 @@ def _enrich_single_call(text: str, source: str) -> dict:
             client = OpenAI()
             resp = client.chat.completions.create(
                 model="gpt-4o-mini",
+                response_format={"type": "json_object"},
                 messages=[
                     {"role": "system", "content": """Phân tích đoạn văn và trả về JSON:
-{
-  "summary": "tóm tắt 2-3 câu",
-  "questions": ["câu hỏi 1", "câu hỏi 2", "câu hỏi 3"],
-  "context": "1 câu mô tả đoạn văn nằm ở đâu trong tài liệu",
-  "metadata": {"topic": "...", "entities": ["..."], "category": "policy|hr|it|finance", "language": "vi|en"}
-}"""},
+            {
+            "summary": "tóm tắt 2-3 câu",
+            "questions": ["câu hỏi 1", "câu hỏi 2", "câu hỏi 3"],
+            "context": "1 câu mô tả đoạn văn nằm ở đâu trong tài liệu",
+            "metadata": {"topic": "...", "entities": ["..."], "category": "policy|hr|it|finance", "language": "vi|en"}
+            }"""},
                     {"role": "user", "content": f"Tài liệu: {source}\n\nĐoạn văn:\n{text}"},
                 ],
                 max_tokens=400,
